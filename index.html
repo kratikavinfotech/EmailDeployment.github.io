@@ -1,4 +1,3 @@
-﻿
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,37 +12,6 @@
             padding: 20px;
             background-color: #f4f4f4;
         }
-
-            .error-message {
-                color: #ff4444;
-                font-size: 14px;
-                margin-top: 5px;
-                display: none;
-            }
-            .valid {
-                border-color: #4CAF50 !important;
-            }
-            .invalid {
-                border-color: #ff4444 !important;
-            }
-            .business-email-notice {
-                background-color: #e8f4fd;
-                border: 1px solid #bee5fb;
-                padding: 15px;
-                border-radius: 5px;
-                margin-bottom: 20px;
-                font-size: 14px;
-                color: #0c5460;
-            }
-            .business-email-notice strong {
-                color: #055160;
-            }
-            .submit-btn:disabled {
-                background-color: #cccccc;
-                cursor: not-allowed;
-            }
-      
-        
         .form-container {
             background-color: white;
             padding: 30px;
@@ -105,27 +73,66 @@
             margin-top: 20px;
             font-size: 14px;
         }
+        
+        /* BUSINESS EMAIL VALIDATION STYLES */
+        .error-message {
+            color: #ff4444;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+        .valid {
+            border-color: #4CAF50 !important;
+        }
+        .invalid {
+            border-color: #ff4444 !important;
+        }
+        .business-email-notice {
+            background-color: #e8f4fd;
+            border: 1px solid #bee5fb;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #0c5460;
+        }
+        .business-email-notice strong {
+            color: #055160;
+        }
+        .submit-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
     <div class="form-container">
         <h1>User Resource Form</h1>
-        <form action="https://hooks.zapier.com/hooks/catch/24376054/uhuc1oz/" method="POST">
+        
+        <!-- BUSINESS EMAIL NOTICE -->
+        <div class="business-email-notice">
+            <strong>Business Email Required:</strong> Please use your company email address. 
+            Personal email providers (Gmail, Yahoo, Hotmail, etc.) are not accepted.
+        </div>
+        
+        <form action="https://hooks.zapier.com/hooks/catch/YOUR_WEBHOOK_ID_HERE/" method="POST">
             <div class="form-group">
                 <label for="fullName">Full Name <span class="required">*</span></label>
                 <input type="text" id="fullName" name="fullName" required>
             </div>
-
+            
             <div class="form-group">
                 <label for="businessEmail">Business Email Address <span class="required">*</span></label>
                 <input type="email" id="businessEmail" name="businessEmail" required>
+                <!-- ERROR MESSAGE FOR EMAIL -->
+                <div id="emailError" class="error-message">Please enter a valid business email address</div>
             </div>
-
+            
             <div class="form-group">
                 <label for="phoneNumber">Phone Number <span class="required">*</span></label>
                 <input type="tel" id="phoneNumber" name="phoneNumber" required>
             </div>
-
+            
             <div class="form-group">
                 <label for="country">Country</label>
                 <select id="country" name="country">
@@ -143,43 +150,178 @@
                     <option value="Other">Other</option>
                 </select>
             </div>
-
+            
             <div class="form-group">
                 <label for="company">Company/Organization</label>
                 <input type="text" id="company" name="company" placeholder="Optional">
             </div>
-
+            
             <button type="submit" class="submit-btn">Submit</button>
         </form>
-
+        
         <p class="info-text">
             After submitting this form, you'll receive an email with your download link.
         </p>
     </div>
 
     <script>
-        // Add form validation and submit handling
-        document.querySelector('form').addEventListener('submit', function(e) {
-            const requiredFields = ['fullName', 'businessEmail', 'phoneNumber'];
-            let allValid = true;
+        // Comprehensive list of personal/free email providers to block
+        const blockedDomains = [
+            // Major free email providers
+            'gmail.com', 'googlemail.com', 'yahoo.com', 'yahoo.co.uk', 'yahoo.ca', 'yahoo.com.au',
+            'ymail.com', 'rocketmail.com', 'hotmail.com', 'hotmail.co.uk', 'hotmail.fr', 
+            'outlook.com', 'outlook.co.uk', 'live.com', 'live.co.uk', 'live.fr', 'msn.com',
+            
+            // Other popular free providers
+            'aol.com', 'aim.com', 'icloud.com', 'me.com', 'mac.com', 'protonmail.com', 
+            'proton.me', 'tutanota.com', 'fastmail.com', 'zoho.com', 'yandex.com', 
+            'yandex.ru', 'mail.ru', 'rambler.ru', 'inbox.com', 'mail.com',
+            
+            // Temporary/disposable email providers
+            '10minutemail.com', 'guerrillamail.com', 'mailinator.com', 'tempmail.org',
+            'temp-mail.org', 'throwaway.email', 'sharklasers.com', 'guerrillamail.org',
+            
+            // Regional free providers
+            'rediffmail.com', 'indiatimes.com', 'sify.com', 'in.com', // India
+            'terra.com.br', 'bol.com.br', 'ig.com.br', 'uol.com.br', // Brazil
+            'free.fr', 'laposte.net', 'orange.fr', 'sfr.fr', // France
+            'gmx.com', 'gmx.de', 'web.de', 't-online.de', // Germany
+            'libero.it', 'virgilio.it', 'alice.it', 'tiscali.it', // Italy
+            'naver.com', 'daum.net', 'hanmail.net', // South Korea
+            'qq.com', '163.com', '126.com', 'sina.com', // China
+            
+            // Additional common ones
+            'hushmail.com', 'lycos.com', 'excite.com', 'bigstring.com', 'myway.com',
+            'comcast.net', 'bellsouth.net', 'earthlink.net', 'cox.net', 'charter.net'
+        ];
 
-            requiredFields.forEach(field => {
-                const input = document.getElementById(field);
-                if (!input.value.trim()) {
-                    input.style.borderColor = '#ff4444';
-                    allValid = false;
-                } else {
-                    input.style.borderColor = '#ddd';
+        // Email validation function
+        function isBusinessEmail(email) {
+            if (!email || !email.includes('@')) {
+                return false;
+            }
+            
+            const domain = email.split('@')[1].toLowerCase();
+            
+            // Check if domain is in blocked list
+            if (blockedDomains.includes(domain)) {
+                return false;
+            }
+            
+            // Additional checks for suspicious patterns
+            const suspiciousPatterns = [
+                /\d{4,}/, // Domains with 4+ consecutive numbers
+                /temp/i,   // Temporary email indicators
+                /test/i,   // Test email indicators
+                /fake/i,   // Fake email indicators
+                /spam/i    // Spam email indicators
+            ];
+            
+            for (let pattern of suspiciousPatterns) {
+                if (pattern.test(domain)) {
+                    return false;
                 }
-            });
+            }
+            
+            return true;
+        }
 
-            if (!allValid) {
-                e.preventDefault();
-                alert('Please fill in all required fields.');
+        // Real-time email validation function
+        function validateEmailField() {
+            const emailInput = document.getElementById('businessEmail');
+            const emailError = document.getElementById('emailError');
+            const email = emailInput.value.trim();
+            
+            if (!email) {
+                emailError.textContent = 'Please enter your business email address';
+                emailError.style.display = 'block';
+                emailInput.classList.remove('valid');
+                emailInput.classList.add('invalid');
+                return false;
+            }
+            
+            // Basic email format validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                emailError.textContent = 'Please enter a valid email address';
+                emailError.style.display = 'block';
+                emailInput.classList.remove('valid');
+                emailInput.classList.add('invalid');
+                return false;
+            }
+            
+            // Business email validation
+            if (!isBusinessEmail(email)) {
+                const domain = email.split('@')[1];
+                emailError.innerHTML = `<strong>${domain}</strong> is not accepted. Please use your company email address.<br>Personal email providers (Gmail, Yahoo, Hotmail, etc.) are not allowed.`;
+                emailError.style.display = 'block';
+                emailInput.classList.remove('valid');
+                emailInput.classList.add('invalid');
+                return false;
+            }
+            
+            // Valid business email
+            emailError.style.display = 'none';
+            emailInput.classList.remove('invalid');
+            emailInput.classList.add('valid');
+            return true;
+        }
+
+        // Enhanced form validation (replaces your existing validation)
+        document.addEventListener('DOMContentLoaded', function() {
+            const emailInput = document.getElementById('businessEmail');
+            const form = document.querySelector('form');
+            
+            // Real-time validation on email input
+            if (emailInput) {
+                emailInput.addEventListener('input', function() {
+                    // Debounce validation to avoid excessive checks
+                    clearTimeout(this.validationTimeout);
+                    this.validationTimeout = setTimeout(validateEmailField, 500);
+                });
+
+                emailInput.addEventListener('blur', validateEmailField);
+            }
+            
+            // Enhanced form submission validation
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    const requiredFields = ['fullName', 'businessEmail', 'phoneNumber'];
+                    let allValid = true;
+                    
+                    // Validate all required fields
+                    requiredFields.forEach(field => {
+                        const input = document.getElementById(field);
+                        if (!input.value.trim()) {
+                            input.style.borderColor = '#ff4444';
+                            allValid = false;
+                        } else {
+                            input.style.borderColor = '#ddd';
+                        }
+                    });
+                    
+                    // Validate business email specifically
+                    if (!validateEmailField()) {
+                        allValid = false;
+                    }
+                    
+                    // Prevent submission if validation fails
+                    if (!allValid) {
+                        e.preventDefault();
+                        
+                        // Focus on first invalid field
+                        const firstInvalid = document.querySelector('.invalid') || 
+                                           document.querySelector('input[style*="ff4444"]');
+                        if (firstInvalid) {
+                            firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            firstInvalid.focus();
+                        }
+                        
+                        return false;
+                    }
+                });
             }
         });
     </script>
 </body>
 </html>
-
-
